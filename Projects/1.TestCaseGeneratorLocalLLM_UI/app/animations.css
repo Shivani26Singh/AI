@@ -1,0 +1,142 @@
+@custom-variant dark (&:is(.dark *));
+
+@layer utilities {
+  .ease-enterprise {
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ease-spring {
+    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .sidebar-shadow {
+    box-shadow: 1px 0 0 0 rgba(255, 255, 255, 0.04),
+      4px 0 16px -8px rgba(0, 0, 0, 0.3);
+  }
+
+  .navbar-shadow {
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.04),
+      0 4px 16px -8px rgba(0, 0, 0, 0.2);
+  }
+
+  .document-surface {
+    background: radial-gradient(
+      ellipse 80% 40% at 50% -10%,
+      oklch(0.55 0.18 264 / 0.05),
+      transparent 60%
+    );
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(91, 91, 255, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(91, 91, 255, 0);
+  }
+}
+
+@keyframes shimmer-enterprise {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ai-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes dot-wave {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-shimmer-enterprise {
+  animation: shimmer-enterprise 2.5s ease-in-out infinite;
+  background-size: 200% 100%;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(1 0 0 / 0.03) 40%,
+    oklch(1 0 0 / 0.06) 50%,
+    oklch(1 0 0 / 0.03) 60%,
+    transparent 100%
+  );
+}
+
+.animate-fade-slide-up {
+  animation: fade-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-slide-down {
+  animation: fade-slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-ai-pulse {
+  animation: ai-pulse 2s ease-in-out infinite;
+}
+
+.animate-dot-wave {
+  animation: dot-wave 1.4s ease-in-out infinite;
+}
