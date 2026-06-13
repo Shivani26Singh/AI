@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/jira/:path*",
+      "destination": "https://learningcoder.atlassian.net/rest/api/2/:path*"
+    },
+    {
+      "source": "/api/groq/:path*",
+      "destination": "https://api.groq.com/openai/v1/:path*"
+    }
+  ]
+}

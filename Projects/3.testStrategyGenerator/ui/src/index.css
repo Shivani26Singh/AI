@@ -1,0 +1,104 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+[data-theme="light"] {
+  --bg: #f5f0e8;
+  --bg-grid: rgba(139, 119, 90, 0.06);
+  --card: #fafaf7;
+  --card-border: #e0d9cc;
+  --text: #3d3629;
+  --text-secondary: #7a7265;
+  --text-muted: #a09888;
+  --accent: #b8860b;
+  --accent-hover: #9a7209;
+  --accent-light: #fdf3d0;
+  --tab-bg: #ede6d8;
+  --tab-active: #b8860b;
+  --tab-text: #7a7265;
+  --tab-active-text: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #d4cdbd;
+  --input-focus: #b8860b;
+  --shadow: 0 1px 3px rgba(80, 60, 30, 0.06), 0 1px 2px rgba(80, 60, 30, 0.04);
+  --shadow-card: 0 2px 12px rgba(80, 60, 30, 0.07), 0 1px 3px rgba(80, 60, 30, 0.04);
+  --spinner: #b8860b;
+  --success: #6b8e23;
+  --success-bg: #f0f5e6;
+  --error: #c0392b;
+  --error-bg: #fdf0ee;
+  --overlay: rgba(40, 30, 15, 0.3);
+  --nav-bg: #ede6d8;
+  --nav-border: #d4cdbd;
+  --method-bg: #f5f0e8;
+  --method-border: #e0d9cc;
+  --method-active: #ffffff;
+  --method-active-border: #b8860b;
+}
+
+[data-theme="dark"] {
+  --bg: #1e1b18;
+  --bg-grid: rgba(200, 180, 140, 0.03);
+  --card: #2a2622;
+  --card-border: #3d3830;
+  --text: #e0d8cc;
+  --text-secondary: #a09888;
+  --text-muted: #7a7265;
+  --accent: #d4a017;
+  --accent-hover: #e8b830;
+  --accent-light: #3d3420;
+  --tab-bg: #2a2622;
+  --tab-active: #d4a017;
+  --tab-text: #a09888;
+  --tab-active-text: #1e1b18;
+  --input-bg: #1e1b18;
+  --input-border: #4a443a;
+  --input-focus: #d4a017;
+  --shadow: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.1);
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.15);
+  --spinner: #d4a017;
+  --success: #8fbc3f;
+  --success-bg: #2a3320;
+  --error: #e74c3c;
+  --error-bg: #3d2020;
+  --overlay: rgba(0,0,0,0.5);
+  --nav-bg: #2a2622;
+  --nav-border: #3d3830;
+  --method-bg: #1e1b18;
+  --method-border: #3d3830;
+  --method-active: #2a2622;
+  --method-active-border: #d4a017;
+}
+
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, textarea {
+  font-family: inherit;
+}
