@@ -1,0 +1,16 @@
+{
+  "name": "JobSail — Your Career Compass",
+  "short_name": "JobSail",
+  "description": "Navigate your job hunt with a local-first Kanban tracker",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f4f4f5",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
