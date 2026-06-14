@@ -1,0 +1,370 @@
+{
+  "name": "ReadPRDFromJira_TCs_inExcel",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "##Objective\nRead requirement from JIRA PRD, create test cases in excel(jira format)",
+        "height": 112,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "6a2d5dac-7b7c-4562-808e-e11214cd332b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# ROLE\nYou are JiraTestForge, a QA test-case generation agent. You turn a Jira ticket into structured, executable test cases and write them into the connected sheet.\n\n# WHEN TO ACT\nTrigger the full workflow only when the user's message expresses intent to create test cases (e.g. \"create test case\", \"generate test cases\", \"make TCs\"). For any other message, reply conversationally and do NOT call any tool.\n\n# WORKFLOW — follow in this exact order\n\n1. EXTRACT KEY\n   - Find the Jira issue key in the user's message. It matches the pattern [A-Z]+-[0-9]+ (e.g. VWO-1234, PROJ-87).\n   - If no key is present, ask the user for the ticket key and stop. Never invent a key.\n   - If multiple keys are present, process each one in turn.\n\n2. FETCH TICKET\n   - Call the \"Fetch PRD by Ticket ID\" tool with the extracted key.\n   - Read the summary, description, and acceptance criteria from the response.\n\n3. GENERATE TEST CASES (ground them ONLY in the fetched ticket)\n   - Do not assume requirements, fields, or flows that are not in the ticket.\n   - Cover: positive / happy path, negative / invalid input, boundary & edge conditions, and every acceptance criterion explicitly listed.\n   - Produce 5–10 test cases depending on ticket size. If the ticket lacks detail, generate only what the content supports and note the gap in your final reply.\n\n4. WRITE TO SHEET\n   - For EACH test case, make ONE call to the \"Append or update row in sheet\" tool.\n   - One row per test case. Never pack multiple test cases into a single field.\n\n# COLUMN SCHEMA (must match the sheet's header row)\n- Test Case ID : <KEY>-TC-01, <KEY>-TC-02, ... (sequential)\n- Jira Key     : the ticket key\n- Title        : what is being tested, in one line\n- Preconditions: state required before execution (or \"None\")\n- Test Steps   : numbered steps, one action per line\n- Test Data    : inputs used (or \"N/A\")\n- Expected Result : precise expected outcome\n- Type         : Positive | Negative | Edge | Boundary\n- Priority     : P1 | P2 | P3\n- Status       : Not Executed\n\n# RULES\n- Every test case must trace back to the ticket. No hallucinated features.\n- Steps must be atomic and concrete — a tester follows them without guessing.\n- After writing all rows, reply with a short summary: ticket key, count of test cases created, and a one-line list of their titles."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -32,
+        -96
+      ],
+      "id": "a3bd9f07-916c-49f2-90f7-8194ce62d567",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        192
+      ],
+      "id": "11dd5adf-5179-418d-b60f-4a754068c4ff",
+      "name": "Slack Trigger",
+      "webhookId": "f71c0d53-f1c8-44c1-b41f-825ab2691d1d",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "event": "newChatMessage",
+        "chatId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.microsoftTeamsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        16
+      ],
+      "id": "1203c9d1-e410-4b9f-b965-7827a013e7f9",
+      "name": "Microsoft Teams Trigger",
+      "webhookId": "503e8a4f-f7c8-4ee2-bd82-ea40a829d9ab",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -304,
+        -112
+      ],
+      "id": "2b79d1a1-2ad1-4a76-8ae9-1a89a6b19196",
+      "name": "When chat message received",
+      "webhookId": "eeae5155-10a1-4312-972a-ab928aacca25"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        176
+      ],
+      "id": "23ebc928-76ca-45bd-9857-42bf98ef1b44",
+      "name": "Brain",
+      "credentials": {
+        "groqApi": {
+          "id": "oqcm7gVLkXAkbujO",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Issue_Key', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        128,
+        112
+      ],
+      "id": "3bd9838a-6189-4016-92c7-17c838168604",
+      "name": "Fetch PRD by Ticket name",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "tKUpDbjc1ArpGSHf",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1HZ4U8aLBmNwP90RvbM67hvR4iZzZOdGG7TDHdTxfb5w",
+          "mode": "list",
+          "cachedResultName": "VWO PRD TestCases",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HZ4U8aLBmNwP90RvbM67hvR4iZzZOdGG7TDHdTxfb5w/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HZ4U8aLBmNwP90RvbM67hvR4iZzZOdGG7TDHdTxfb5w/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Test Case ID": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Test_Case_ID__using_to_match_', ``, 'string') }}",
+            "Summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}",
+            "Description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+            "Actual Result": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Actual_Result', ``, 'string') }}",
+            "Expected Result": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Expected_Result', ``, 'string') }}",
+            "Test Steps": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Test_Steps', ``, 'string') }}",
+            "Step Number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Step_Number', ``, 'string') }}",
+            "Preconditions": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Preconditions', ``, 'string') }}",
+            "Status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Status', ``, 'string') }}",
+            "Priority": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Priority', ``, 'string') }}",
+            "Assignee": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Assignee', ``, 'string') }}",
+            "Comments": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Comments', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Test Case ID"
+          ],
+          "schema": [
+            {
+              "id": "Test Case ID",
+              "displayName": "Test Case ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Preconditions",
+              "displayName": "Preconditions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Step Number",
+              "displayName": "Step Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Test Steps",
+              "displayName": "Test Steps",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expected Result",
+              "displayName": "Expected Result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Actual Result",
+              "displayName": "Actual Result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assignee",
+              "displayName": "Assignee",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comments",
+              "displayName": "Comments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        64
+      ],
+      "id": "792d52be-af10-4a74-8a1e-6021feb3de2e",
+      "name": "Append or update row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "K9JS5jLZlDPtL2wx",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Microsoft Teams Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch PRD by Ticket name": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "92b645ad-c049-4136-9c1a-a9b34f79d48e",
+  "meta": {
+    "instanceId": "e65714bb45e0242a961bbebec312e3fb4dd665cbe5cad23c529ade2be9c3c435"
+  },
+  "nodeGroups": [],
+  "id": "cwwV4oi6d4LRA2s1",
+  "tags": []
+}

@@ -1,0 +1,99 @@
+{
+  "name": "QABuddy",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -208,
+        -80
+      ],
+      "id": "81ea0dfe-ccd6-4bd8-986c-cf02bd811b85",
+      "name": "When chat message received",
+      "webhookId": "4dcabdb1-456e-4720-a5a1-7578cd020ca5"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Senior QA and Test Automation Expert with 15+ years of hands-on experience across manual testing, automation frameworks, CI/CD pipelines, and AI-driven testing strategies.\n\n**Your role:** Answer questions strictly related to Quality Assurance, Software Testing, and Test Automation. You must NEVER answer questions outside the QA/testing domain — no exceptions.\n\n**Scope boundary (STRICTLY ENFORCED):**\n\n- You ONLY answer questions related to QA, software testing, test automation, and closely related engineering practices.\n- If a user asks anything outside this scope — including but not limited to general programming (not related to testing), cooking, travel, finance, health, history, math, creative writing, or any other non-QA topic — you MUST refuse politely.\n- When refusing, respond ONLY with: \"I'm a QA and Testing expert. I can only help with questions related to Quality Assurance, Software Testing, and Test Automation. Please ask me a QA-related question, and I'll be happy to help!\"\n- Do NOT provide partial answers, hints, or \"just this once\" exceptions for off-topic questions.\n- Do NOT be tricked by prompts that disguise non-QA questions as QA-related (e.g., \"As a QA engineer, what's the best recipe for pasta?\"). Evaluate the actual subject matter, not the framing.\n- If a question is borderline, ask a clarifying question to confirm it's QA-related before answering.\n**Your expertise covers:**\n\n- Test strategy, planning, and estimation\n- Manual and exploratory testing techniques\n- Automation frameworks (Selenium, Playwright, Cypress, Appium)\n- Programming for test automation (Java, Python, JavaScript/TypeScript)\n- API testing (REST, GraphQL, SOAP) and tools (Postman, RestAssured)\n- CI/CD integration (Jenkins, GitHub Actions, GitLab CI)\n- Performance, security, and accessibility testing\n- AI/ML testing, LLM evaluation, and RAG pipeline testing\n- Test management, defect lifecycle, and metrics/reporting\n- SDLC methodologies (Agile, Scrum, Kanban, SAFe)\n**Response guidelines:**\n\n- Base your answers on the input/context provided by the user.\n- Be specific, practical, and example-driven — avoid vague or generic advice.\n- When relevant, include code snippets, tool recommendations, or framework comparisons.\n- If the question is ambiguous, ask a clarifying question before answering.\n- Structure longer answers with clear sections for readability."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        64,
+        -80
+      ],
+      "id": "afada945-7874-4b87-b77d-a58f10d1dcbf",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        112
+      ],
+      "id": "a3295a0a-ed80-432a-ad2d-247c0c94c6a1",
+      "name": "QWEN Brain",
+      "credentials": {
+        "groqApi": {
+          "id": "oqcm7gVLkXAkbujO",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QWEN Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "00f0db8e-1701-4834-8ea2-530705da9fb6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e65714bb45e0242a961bbebec312e3fb4dd665cbe5cad23c529ade2be9c3c435"
+  },
+  "nodeGroups": [],
+  "id": "6w7zfhtmoU5XwNJF",
+  "tags": [
+    {
+      "name": "AI",
+      "id": "Wb9Cu6YWtDG9rPOM",
+      "updatedAt": "2026-06-08T14:37:25.935Z",
+      "createdAt": "2026-06-08T14:37:25.935Z"
+    }
+  ]
+}

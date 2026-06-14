@@ -1,0 +1,159 @@
+{
+  "name": "JIRA Bug Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3ce18764-3530-45fc-b7aa-4bc5b7b5b2ff",
+      "name": "When chat message received",
+      "webhookId": "4dcabdb1-456e-4720-a5a1-7578cd020ca5"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a QA automation engineer with 15 years of experience. You will get the details of the Jira ticket through the chat. Your task is to create a Jira ticket with proper steps to reproduce and proper instructions like Jira. Use the Jira tool attached."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        272,
+        0
+      ],
+      "id": "ece4aa40-6552-477f-a681-017988768450",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        176,
+        208
+      ],
+      "id": "0233a368-a8c9-4e2b-95e1-a1113caf08f5",
+      "name": "QWEN Brain",
+      "credentials": {
+        "groqApi": {
+          "id": "oqcm7gVLkXAkbujO",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "10001",
+          "mode": "list",
+          "cachedResultName": "QATesting"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "10011",
+          "mode": "list",
+          "cachedResultName": "Bug"
+        },
+        "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        656,
+        192
+      ],
+      "id": "dc269b1f-3089-4199-81d4-0d1af1d9d8a6",
+      "name": "Create Jira Ticket",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "tKUpDbjc1ArpGSHf",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        288
+      ],
+      "id": "dc8d7c95-a0d1-4f6b-8580-1903d5a0fc18",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QWEN Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Jira Ticket": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f2c07a8f-7fe6-46e8-b501-6bf4b30a6288",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e65714bb45e0242a961bbebec312e3fb4dd665cbe5cad23c529ade2be9c3c435"
+  },
+  "nodeGroups": [],
+  "id": "QVl0x47blJUftOBL",
+  "tags": []
+}
