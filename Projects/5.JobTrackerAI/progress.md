@@ -56,5 +56,5 @@
 - `npm run build` passes clean ✅ (262KB JS + 31KB CSS)
 
 ### Source
-- Original: [PramodDutta/AITesterBlueprint3x](https://github.com/PramodDutta/AITesterBlueprint3x) — `Project_Job_TRACKERAI/`
+- `Project_Job_TRACKERAI/`
 - All subsequent phases built in-session

@@ -1,0 +1,16 @@
+{
+  "name": "flaky-test-playwright",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:repeat": "node scripts/run-flaky.mjs",
+    "test:all": "node scripts/run-and-analyze.mjs",
+    "analyze": "node scripts/run-and-analyze.mjs",
+    "ui": "npm run dev --prefix ../Project/ui"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}

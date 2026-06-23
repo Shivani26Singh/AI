@@ -1,0 +1,217 @@
+{
+  "suites": [
+    {
+      "title": "chromium",
+      "specs": [
+        {
+          "title": "should add a single todo item",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should add multiple todo items",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should mark a todo as completed",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should delete a todo item",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should edit a todo item",
+          "ok": false,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "skipped"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should clear completed todos",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should filter active todos",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should filter completed todos",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should show remaining count",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should persist todos after page reload",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should handle empty todo submission",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should trim whitespace in todo text",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should handle special characters",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should handle very long task names",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should toggle a todo multiple times",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "should not show clear-completed when no todos completed",
+          "ok": true,
+          "tests": [
+            {
+              "results": [
+                {
+                  "status": "passed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
