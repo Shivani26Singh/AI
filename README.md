@@ -3,10 +3,6 @@
 A practical, project-driven curriculum for QA engineers learning to use LLMs as a real testing tool — not a toy.
 Each chapter pairs concept material with a hands-on project, a prompt template, and runnable code where applicable.
 
-- **Author:** Pramod Dutta — Principal SDET
-- **Website:** [The Testing Academy](https://thetestingacademy.com/)
-- **LinkedIn:** [linkedin.com/in/pramoddutta](https://www.linkedin.com/in/pramoddutta/)
-
 ---
 
 ## Curriculum Map
@@ -110,7 +106,7 @@ mindmap
 │   ├── social_ai_agent/
 │   │   └── contentforge/          Next.js local content pipeline dashboard
 │   └── skillfile_content_generation/
-│       ├── SKILL.md               The Testing Academy content engine
+│       ├── SKILL.md               The content engine
 │       └── output/                Dated publish-ready content packs
 │
 └── Project_Job_TRACKERAI/         Local-first job application tracker
@@ -363,7 +359,7 @@ This chapter adds importable **n8n** workflows and local AI-agent projects for p
 - `AI_3X_03_Read_PRD_TestCases_Excel.json` — fetches PRD/ticket context and writes generated test cases into Google Sheets.
 - `AI_3X_04_Read_PRD_TestCases_Excel_v2.json` — extends the PRD-to-test-cases flow with CSV upload and batch Jira processing.
 - `social_ai_agent/contentforge/` — local Next.js + TypeScript dashboard for a daily content-generation pipeline.
-- `skillfile_content_generation/SKILL.md` — content engine skill for The Testing Academy publish-ready content packs.
+- `skillfile_content_generation/SKILL.md` — content engine skill for publish-ready content packs.
 - `skillfile_content_generation/output/2026-06-14/` — generated content pack for "Your AI Agent Needs a QA Contract, Not More Prompts."
 
 **How to use the n8n workflows:**
@@ -434,7 +430,7 @@ You can read it linearly (chapter 01 → 04) or jump straight to a project:
 - **"I want to generate a test plan from Jira."** → `chapter_03_BLAST_FW_JIRA_AI_AGENT/`.
 - **"I want reusable QA automation agents."** → `chapter_04_AI_Agents_n8n/n8n_AIAgent/`.
 - **"I want a local AI content dashboard."** → `chapter_04_AI_Agents_n8n/social_ai_agent/contentforge/`.
-- **"I want publish-ready Testing Academy content."** → `chapter_04_AI_Agents_n8n/skillfile_content_generation/output/`.
+- **"I want publish-readys content."** → `chapter_04_AI_Agents_n8n/skillfile_content_generation/output/`.
 - **"I want to track job applications locally."** → `Project_Job_TRACKERAI/`.
 
 ## Requirements
@@ -453,6 +449,3 @@ You can read it linearly (chapter 01 → 04) or jump straight to a project:
 `187a77f` — chapter 03 B.L.A.S.T. Jira to Test Plan generator.
 `f67b4f6` — chapter 04 ContentForge local content pipeline + skill output pack.
 
----
-
-Made by [Pramod Dutta](https://thetestingacademy.com/) for The Testing Academy.
