@@ -1,6 +1,6 @@
 import { test, expect } from '../../fixtures/todo.fixture';
 import { TEST_ITEMS, pickRandom } from '../../utils/test-data';
-import { readFileSync, existsSync, writeFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 
 /**
  * Run counter for flakiness simulation.
