@@ -20,15 +20,16 @@ This agent does the heavy lifting for the current sprint section.
 4. **Trigger:** `User asks for current sprint status, active sprint commitments, sprint plan, what they're working on this sprint, current sprint report, or sprint planned effort. Also triggered when the Sprint Summary Generator delegates current sprint work.`
 5. **Instructions:** Copy the entire code block from the solution doc under `## Agent 2: CURRENT SPRINT AGENT` — starting from `# Identity` through the last `# Edge Cases` line.
 
-6. **Skills to enable** (check these boxes):
-   - ☑ **Search Jira issues** — for running the JQL query
-   - ☑ **Get issue** — for reading parent field, original estimate, status category
-   - ☑ **Get board information** or **List sprints** — for finding the active sprint
-   > If "List board sprints" is a separate skill, enable that instead. The exact skill names in Rovo may vary slightly.
+6. **Skills** — tick these exact checkboxes in the Rovo UI:
+   - ☑ **Search for Jira issues** → needed to run `sprint = <ID> AND assignee = currentUser()` JQL
+   - ☑ **Get Jira issue** → needed to read parent field, timeoriginalestimate, statuscategory
+   - ☑ **Get board sprints** → needed to find the active sprint ID
 
-6. **Knowledge sources:** None needed — everything comes from Jira live data.
+   If "Get board sprints" isn't available, use **List sprints on board** or **Get sprints for board** — whichever appears.
 
-7. **Save agent.**
+7. **Knowledge sources:** None — all data comes live from Jira.
+
+8. **Save agent.**
 
 ### Test It
 
@@ -59,14 +60,15 @@ This agent handles the previous sprint — time logged and achievement status.
 1. **Go to** Rovo → Agents → **Create agent**
 2. **Name:** `Previous Sprint Agent`
 3. **Description:** `Reports the user's previous sprint work — time logged via worklogs, achievement status via changelog, and identifies pulled-in-work.`
-4. **Instructions:** Copy the entire code block from the solution doc under `## Agent 3: PREVIOUS SPRINT AGENT` — starting from `# Identity` through the last `# Edge Cases` line.
+4. **Trigger:** `User asks for previous sprint summary, last sprint achievement, sprint retrospective, what they completed last sprint, previous sprint time logged, or sprint review report. Also triggered when the Sprint Summary Generator delegates previous sprint work.`
+5. **Instructions:** Copy the entire code block from the solution doc under `## Agent 3: PREVIOUS SPRINT AGENT` — starting from `# Identity` through the last `# Edge Cases` line.
 
-5. **Skills to enable:**
-   - ☑ **Search Jira issues** — for `sprint = <ID>` JQL
-   - ☑ **Get issue** — for reading assignee, status fields
-   - ☑ **Get issue worklogs** — for summing time spent (CRITICAL — this is mandatory)
-   - ☑ **Get issue changelog** — for historical status and sprint-field detection (CRITICAL — without this the agent cannot produce accurate historical reports)
-   - ☑ **Get board information** or **List sprints** — for finding the previous sprint ID
+6. **Skills** — tick these exact checkboxes in the Rovo UI:
+   - ☑ **Search for Jira issues** → to query all issues in the previous sprint
+   - ☑ **Get Jira issue** → to read assignee, parent, and current status fields
+   - ☑ **Get issue worklogs** → to sum time spent by the user (MANDATORY)
+   - ☑ **Get issue changelog** → to determine historical status at sprint end (MANDATORY — without this, the report will use wrong statuses)
+   - ☑ **Get board sprints** → to find the previous sprint ID
 
 6. **Knowledge sources:** None needed.
 
@@ -99,17 +101,19 @@ This is the orchestrator — it calls the other two agents and concatenates thei
 1. **Go to** Rovo → Agents → **Create agent**
 2. **Name:** `Sprint Summary Generator`
 3. **Description:** `Orchestrates Current Sprint Agent and Previous Sprint Agent to produce a complete personal sprint summary. Never queries Jira directly.`
-4. **Instructions:** Copy the entire code block from the solution doc under `## Agent 1: SPRINT SUMMARY GENERATOR (Master)` — starting from `# Identity` through the final example output block.
+4. **Trigger:** `User asks for a full sprint summary, sprint report, stand-up summary, sprint review report, or "how's my sprint going". Also triggered by "generate my sprint summary", "sprint status", or "what's my sprint look like".`
+5. **Instructions:** Copy the entire code block from the solution doc under `## Agent 1: SPRINT SUMMARY GENERATOR (Master)` — starting from `# Identity` through the final example output block.
 
-5. **Skills to enable:**
-   - ☑ **Call agent** — Rovo's ability for one agent to invoke another
-   > If Rovo doesn't have a "Call agent" skill, the master agent should use regular @-mention syntax in its instructions to invoke the subagents.
+6. **Skills** — tick this exact checkbox in the Rovo UI:
+   - ☑ **Call agent** → to invoke Current Sprint Agent and Previous Sprint Agent
 
-   - Do **NOT** enable any Jira skills. The master must never query Jira directly.
+   Do NOT enable any Jira skills on this agent. The master must never query Jira.
 
-6. **Knowledge sources:** None needed.
+   If "Call agent" doesn't exist in Rovo, skip it — the master will use @-mentions instead (see fallback below).
 
-7. **Save agent.**
+7. **Knowledge sources:** None.
+
+8. **Save agent.**
 
 ### If Rovo's "Call Agent" Works
 
