@@ -17,9 +17,10 @@ This agent does the heavy lifting for the current sprint section.
 1. **Go to** Rovo → Agents → **Create agent**
 2. **Name:** `Current Sprint Agent`
 3. **Description:** `Finds the user's active sprint on the specified board, returns sprint commitments, planned effort, and issue URLs.`
-4. **Instructions:** Copy the entire code block from the solution doc under `## Agent 2: CURRENT SPRINT AGENT` — starting from `# Identity` through the last `# Edge Cases` line.
+4. **Trigger:** `User asks for current sprint status, active sprint commitments, sprint plan, what they're working on this sprint, current sprint report, or sprint planned effort. Also triggered when the Sprint Summary Generator delegates current sprint work.`
+5. **Instructions:** Copy the entire code block from the solution doc under `## Agent 2: CURRENT SPRINT AGENT` — starting from `# Identity` through the last `# Edge Cases` line.
 
-5. **Skills to enable** (check these boxes):
+6. **Skills to enable** (check these boxes):
    - ☑ **Search Jira issues** — for running the JQL query
    - ☑ **Get issue** — for reading parent field, original estimate, status category
    - ☑ **Get board information** or **List sprints** — for finding the active sprint

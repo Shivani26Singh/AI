@@ -361,6 +361,7 @@ The original 4-agent design creates coupling that Rovo agents cannot reliably ma
 | Attribute | Value |
 |---|---|
 | **Trigger** | User asks for sprint summary, sprint report, stand-up summary, or sprint review report |
+| **Trigger (Rovo field)** | `User asks for a full sprint summary, sprint report, stand-up summary, sprint review report, or "how's my sprint going". Also triggered by "generate my sprint summary", "sprint status", or "what's my sprint look like".` |
 | **Skills** | Call agent (to invoke subagents) |
 | **Knowledge** | None needed — delegates all work |
 | **Inputs** | Board name or project key (optional, defaults to primary board) |
@@ -375,6 +376,7 @@ The original 4-agent design creates coupling that Rovo agents cannot reliably ma
 | Attribute | Value |
 |---|---|
 | **Trigger** | Called by master agent with board identifier |
+| **Trigger (Rovo field)** | `User asks for current sprint status, active sprint commitments, sprint plan, what they're working on this sprint, current sprint report, or sprint planned effort. Also triggered when the Sprint Summary Generator delegates current sprint work.` |
 | **Skills** | Search Jira issues (required), Get issue (required), List board sprints (required) |
 | **Knowledge** | Sprint date formatting, estimate conversion rules, parent/subtask exclusion logic |
 | **Inputs** | `board_name`: Board identifier (e.g., "OHPF board") |
