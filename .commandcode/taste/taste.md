@@ -17,3 +17,9 @@ See [n8n-workflows/taste.md](n8n-workflows/taste.md)
 
 # interaction-style
 - Prefer performing tasks directly (running commands, seeding data, fixing issues) rather than giving the user step-by-step instructions to do it themselves. The user expects the assistant to take action, not delegate back. Confidence: 0.75
+
+# documentation
+- For Rovo agent docs: list skills as exact Rovo UI checkbox names in a plain numbered list per agent, not buried in prose-heavy tables with explanations. Users need to quickly see what to tick without parsing narrative text. Confidence: 0.70
+
+# rovo-agents
+- For sprint summary agents: if a story is in the current sprint but its task was completed in the previous sprint (assigned to the same user), count that task in the previous sprint only — do not double-count it in the current sprint. Confidence: 0.70

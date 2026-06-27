@@ -16,13 +16,14 @@ This agent does the heavy lifting for the current sprint section.
 
 1. **Go to** Rovo → Agents → **Create agent**
 2. **Name:** `Current Sprint Agent`
-3. **Description:** `Finds the user's active sprint on the specified board, returns sprint commitments, planned effort, and issue URLs.`
+3. **Description:** `Finds the user's active sprint (auto-detected or by date range across all projects), returns sprint commitments with status, planned effort, and issue URLs.`
 4. **Trigger:** `User asks for current sprint status, active sprint commitments, sprint plan, what they're working on this sprint, current sprint report, or sprint planned effort. Also triggered when the Sprint Summary Generator delegates current sprint work.`
 5. **Instructions:** Copy the entire code block from the solution doc under `## Agent 2: CURRENT SPRINT AGENT` — starting from `# Identity` through the last `# Edge Cases` line.
 
 6. **Skills** — tick these exact checkboxes in the Rovo UI:
    - ☑ **Search for Jira issues** → needed to run `sprint = <ID> AND assignee = currentUser()` JQL
    - ☑ **Get Jira issue** → needed to read parent field, timeoriginalestimate, statuscategory
+   - ☑ **Get issue changelog** → needed to check WHEN a Done issue was completed. Issues Done before the current sprint start must be excluded (they were completed in a previous sprint, do not double-count)
    - ☑ **Get board sprints** → needed to find the active sprint ID
 
    If "Get board sprints" isn't available, use **List sprints on board** or **Get sprints for board** — whichever appears.
@@ -33,9 +34,22 @@ This agent does the heavy lifting for the current sprint section.
 
 ### Test It
 
-In the Rovo chat, type:
+Try these queries in Rovo chat:
+
 ```
-@Current Sprint Agent — find my active sprint on the OHPF board
+@Current Sprint Agent — find my current sprint tasks
+```
+
+Or with dates (no board needed):
+
+```
+@Current Sprint Agent — find my sprint tasks from 24 June to 7 July
+```
+
+Or with status included:
+
+```
+@Current Sprint Agent — show my current sprint commitments with status
 ```
 
 Expected output:
@@ -45,8 +59,9 @@ OHPF Sprint: 24 June – 7 July
 Tasks planned: 5d 3h
 
 Current Sprint Commitments:
-https://hptech.atlassian.net/browse/MDA-2043
-https://hptech.atlassian.net/browse/MDA-2044
+https://hptech.atlassian.net/browse/MDA-2043 - In Progress
+https://hptech.atlassian.net/browse/MDA-2044 - Done
+https://hptech.atlassian.net/browse/MDA-2046 - To Do
 ```
 
 ---
@@ -77,7 +92,13 @@ This agent handles the previous sprint — time logged and achievement status.
 ### Test It
 
 ```
-@Previous Sprint Agent — show my previous sprint on the OHPF board
+@Previous Sprint Agent — show my previous sprint
+```
+
+Or with dates:
+
+```
+@Previous Sprint Agent — show my sprint from 10 June to 24 June
 ```
 
 Expected output:
@@ -148,11 +169,11 @@ Then the user would interact with the master agent in a conversation thread wher
 
 | Skill | Current Sprint | Previous Sprint | Master |
 |---|---|---|---|
-| Search Jira issues | ✅ | ✅ | ❌ |
-| Get issue | ✅ | ✅ | ❌ |
+| Search for Jira issues | ✅ | ✅ | ❌ |
+| Get Jira issue | ✅ | ✅ | ❌ |
 | Get issue worklogs | ❌ | ✅ | ❌ |
-| Get issue changelog | ❌ | ✅ | ❌ |
-| List board sprints | ✅ | ✅ | ❌ |
+| Get issue changelog | ✅ | ✅ | ❌ |
+| Get board sprints | ✅ | ✅ | ❌ |
 | Call agent | ❌ | ❌ | ✅ |
 
 ---

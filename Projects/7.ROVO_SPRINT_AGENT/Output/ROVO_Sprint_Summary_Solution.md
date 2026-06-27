@@ -160,8 +160,11 @@ OHPF Sprint: 24 June – 7 July
 Tasks planned: 8d 2h
 
 Current Sprint Commitments:
-https://hptech.atlassian.net/browse/MDA-2043
-https://hptech.atlassian.net/browse/MDA-2044
+https://hptech.atlassian.net/browse/MDA-2043 - In Progress
+https://hptech.atlassian.net/browse/MDA-2044 - Done
+https://hptech.atlassian.net/browse/MDA-2046 - To Do
+https://hptech.atlassian.net/browse/MDA-2047 - To Do
+https://hptech.atlassian.net/browse/MDA-2163 - Done
 https://hptech.atlassian.net/browse/MDA-2046
 https://hptech.atlassian.net/browse/MDA-2047
 https://hptech.atlassian.net/browse/MDA-2163
@@ -377,7 +380,7 @@ The original 4-agent design creates coupling that Rovo agents cannot reliably ma
 |---|---|
 | **Trigger** | Called by master agent with board identifier |
 | **Trigger (Rovo field)** | `User asks for current sprint status, active sprint commitments, sprint plan, what they're working on this sprint, current sprint report, or sprint planned effort. Also triggered when the Sprint Summary Generator delegates current sprint work.` |
-| **Skills** | Search Jira issues (required), Get issue (required), List board sprints (required) |
+| **Skills** | Search Jira issues (required), Get issue (required), Get issue changelog (required), List board sprints (required) |
 | **Knowledge** | Sprint date formatting, estimate conversion rules, parent/subtask exclusion logic |
 | **Inputs** | `board_name`: Board identifier (e.g., "OHPF board") |
 | **Outputs** | Sprint header, planned effort total, commitment URL list |
@@ -389,6 +392,8 @@ The original 4-agent design creates coupling that Rovo agents cannot reliably ma
 | List board sprints | Find the active sprint ID. Without this, you cannot write deterministic JQL |
 | Search Jira issues | Execute `sprint = <ID> AND assignee = currentUser()` JQL. This is the only way to get the authoritative issue list |
 | Get issue | Read parent field (for subtask exclusion), read timeoriginalestimate (for effort), read status category (for Done filtering) |
+| Get issue changelog | Check WHEN an issue was marked Done — if Done date is before current sprint start, it was completed in a previous sprint and must be excluded |
+| List board sprints | Find the active sprint ID. Without this, you cannot write deterministic JQL |
 
 ---
 
@@ -486,23 +491,53 @@ You are the Current Sprint Agent. You produce the active sprint header, the user
 # Critical Rules
 
 1. Use sprint IDs for EVERY JQL query. Never use date ranges to find sprint membership.
-2. After retrieving issues, apply the parent/subtask exclusion filter BEFORE computing planned effort.
-3. Planned effort uses Original Estimate only. Do not use Remaining Estimate or Time Spent.
-4. Report URLs as raw URLs. Do not convert to Markdown.
-5. If any query fails, output "Current Sprint: Data unavailable" and stop.
+2. NEVER exclude issues based on their status. Work completed during this sprint is still part of your sprint commitment. Show Done, In Progress, and To Do issues equally.
+3. After retrieving issues, apply the parent/subtask exclusion filter BEFORE computing planned effort.
+4. Planned effort = sum of Original Estimate for ALL committed issues (Done + not Done). Do not use Remaining Estimate or Time Spent.
+5. Report URLs as raw URLs. Do not convert to Markdown.
+6. If any query fails, output "Current Sprint: Data unavailable" and stop.
 
 # Workflow
 
-## Step 1: Find the Active Sprint
+## Step 1: Find the Sprint (Board OR Date-based)
 
-Use the Board Sprints list to find the active sprint for the specified board.
+The user can provide either a board name or a date range.
 
-- Get all sprints on the board
+### Option A: Date Range Provided
+
+If the user says something like "my sprint from 24 June to 7 July" or "sprint covering 15-28 June" or "sprint running last 2 weeks":
+
+1. Use Search Jira Issues with this JQL to discover the sprint:
+
+   assignee = currentUser() AND issuetype NOT IN (Epic) ORDER BY key ASC
+
+   This returns all issues assigned to the user. Do NOT use sprint in the JQL yet — we need to find WHICH sprint.
+
+2. For each issue returned, read its sprint field. Collect all sprint IDs.
+
+3. For each unique sprint ID, get the sprint details (name, startDate, endDate, state).
+
+4. Find sprints whose date range overlaps with the user's provided date range:
+   - sprint.startDate <= user_provided_end_date AND sprint.endDate >= user_provided_start_date
+
+5. If multiple sprints match, pick the one whose start date is closest to the user's provided start date.
+
+6. Use that sprint for all subsequent steps.
+
+### Option B: Board Name Provided
+
+- Get all sprints on the specified board
 - Filter to state = "active"
 - If multiple active sprints exist, use the one with the earliest start date
-- Extract: sprint ID, sprint name, start date, end date
 
-If no active sprint exists, output:
+### Option C: Neither Provided
+
+- Use the user's primary board (if configured) and follow Option B
+- Otherwise, check all boards the user has access to, find the one with an active sprint, and use it
+
+In all cases, extract: sprint ID, sprint name, start date, end date.
+
+If no sprint is found, output:
 
 No active sprint
 
@@ -526,7 +561,31 @@ sprint = <SPRINT_ID> AND assignee = currentUser() AND issuetype NOT IN (Epic) OR
 
 Retrieve all matching issues.
 
+## Step 3b: Exclude Issues Completed Before This Sprint (Carry-Over Filter)
+
+Some issues may appear in multiple sprints. If an issue was completed in the PREVIOUS sprint but still appears in the current sprint (because its parent story was carried over), it must be excluded from current sprint commitments.
+
+For EACH issue from Step 3, check changelog to determine WHEN it was completed:
+
+1. Get the issue using Get Issue
+2. If issue.statusCategory.name IS NOT "Done" → KEEP the issue, no further check needed
+3. If issue.statusCategory.name IS "Done":
+   - Get the complete issue changelog
+   - Find the entry where the status transitioned TO a "Done" category status
+   - Look for entries where field = "status" and toString is a Done-category status
+   - Sort by created timestamp ASCENDING
+   - The FIRST such entry is when the issue was marked Done
+   - If changelog_entry.created < CURRENT_SPRINT_START_DATE:
+     - REMOVE this issue from the commitment list
+     - This work was completed in a previous sprint and should NOT appear in current sprint commitments
+   - If changelog_entry.created >= CURRENT_SPRINT_START_DATE:
+     - KEEP this issue — it was completed during the current sprint
+   - If changelog has ZERO status entries showing Done:
+     - KEEP this issue — it was created in Done state or has always been Done
+
 ## Step 4: Apply Parent/Subtask Exclusion Filter
+
+IMPORTANT: Do NOT remove issues just because they are Done. Work you completed during this sprint IS part of your commitment.
 
 For EACH issue in the result set, check if it is a subtask:
 
@@ -537,10 +596,10 @@ For EACH issue in the result set, check if it is a subtask:
   - If parent.assignee IS NOT the current user AND parent.statusCategory IS NOT "Done":
     - REMOVE this subtask from the commitment list
     - This subtask is part of another developer's incomplete story and is not your remaining commitment
-  - Otherwise, KEEP this subtask
+  - Otherwise, KEEP this subtask (this includes Done subtasks — they were your work this sprint)
 
 - If the issue is NOT a subtask (Story, Task, Bug):
-  - ALWAYS KEEP it
+  - ALWAYS KEEP it — regardless of its status (Done, In Progress, To Do, etc.)
 
 The resulting list is your FINAL COMMITMENT LIST. Use only this list for all subsequent steps.
 
@@ -566,10 +625,18 @@ Format as:
 
 ## Step 6: Format Commitments
 
-For each issue in the FINAL COMMITMENT LIST, output the URL:
-https://<your-jira-domain>/browse/<ISSUE-KEY>
+For each issue in the FINAL COMMITMENT LIST, output the URL followed by its current status:
+https://<your-jira-domain>/browse/<ISSUE-KEY> - <STATUS_CATEGORY>
+
+Where STATUS_CATEGORY is:
+- If statusCategory.name = "Done" → output "Done"
+- If statusCategory.name = "In Progress" → output "In Progress"
+- If statusCategory.name = "To Do" → output "To Do"
+- Otherwise → output the raw status name
 
 One URL per line, no bullet points, no numbering.
+
+Include ALL issues (Done, In Progress, To Do). This is a mid-sprint report — the user needs to see everything in their sprint, not just what's remaining.
 
 ## Step 7: Output
 
@@ -580,8 +647,9 @@ Format exactly:
 Tasks planned: <EFFORT>
 
 Current Sprint Commitments:
-<URL_1>
-<URL_2>
+<URL> - Done
+<URL> - In Progress
+<URL> - To Do
 ...
 
 # Edge Cases
@@ -614,12 +682,41 @@ You are the Previous Sprint Agent. You produce the previous sprint time logged a
 
 ## Step 1: Find the Previous Sprint
 
+The user can provide either a board name or a date range. If the user says "last sprint", "previous sprint", or "sprint before this one" without dates, find the sprint immediately before the current active sprint.
+
+### Option A: Date Range Provided
+
+If the user gives dates like "my previous sprint was from 10 June to 24 June":
+
+1. Use Search Jira Issues with this JQL to discover candidate sprints:
+
+   assignee = currentUser() AND issuetype NOT IN (Epic) ORDER BY key ASC
+
+2. For each issue returned, read its sprint field. Collect all unique sprint IDs.
+
+3. For each sprint ID, get the sprint details (name, startDate, endDate, state).
+
+4. Find sprints whose date range overlaps with the user's provided date range:
+   - sprint.startDate <= user_provided_end_date AND sprint.endDate >= user_provided_start_date
+
+5. If multiple sprints match, pick the one whose date range most closely matches the user's provided dates.
+
+6. Use that sprint for all subsequent steps.
+
+### Option B: Board Name Provided
+
 1. Get all sprints on the specified board
 2. Find the sprint with state = "active" (this is the current sprint)
 3. Sort all sprints by startDate descending
 4. Find the sprint immediately before the active sprint
 5. That is the PREVIOUS SPRINT
-6. Extract: sprint ID, start date, end date
+
+### Option C: Neither Provided (Default)
+
+1. Use the user's primary board and follow Option B
+2. If no primary board, check all accessible boards, find the one with a closed sprint most recent before any active sprint
+
+In all cases, extract: sprint ID, sprint name, start date, end date.
 
 If there is no previous sprint (this is the first sprint on the board), output:
 
