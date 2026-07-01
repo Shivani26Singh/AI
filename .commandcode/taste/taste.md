@@ -23,3 +23,4 @@ See [n8n-workflows/taste.md](n8n-workflows/taste.md)
 
 # rovo-agents
 - For sprint summary agents: if a story is in the current sprint but its task was completed in the previous sprint (assigned to the same user), count that task in the previous sprint only — do not double-count it in the current sprint. Confidence: 0.70
+- Support date-based sprint lookup as an alternative to board-based: when a date range is provided, search across all projects/sprints whose date range overlaps the given dates, eliminating the need for the user to specify a board. Confidence: 0.65

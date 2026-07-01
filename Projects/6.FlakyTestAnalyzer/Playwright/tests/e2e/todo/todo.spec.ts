@@ -17,8 +17,10 @@ function readRunNumber(): number {
 
 function shouldFlake(testIndex: number): boolean {
   const run = readRunNumber();
-  const flakePattern = (testIndex % 3);
-  return flakePattern === (run % 3);
+  // Run 0 (Build A): tests 0-3 flake → 4 failures
+  // Run 1 (Build B): tests 4-5 flake → 2 failures (different tests, different count)
+  if (run % 2 === 0) return testIndex < 4;
+  return testIndex >= 4 && testIndex < 6;
 }
 
 test.describe('TodoMVC — Core functionality', () => {
@@ -27,23 +29,27 @@ test.describe('TodoMVC — Core functionality', () => {
   });
 
   test('should add a single todo item', async ({ todoPage }) => {
+    if (shouldFlake(0)) throw new Error('Flaky — add item race');
     await todoPage.addTodo(TEST_ITEMS[0]);
     await todoPage.expectVisibleTodo(TEST_ITEMS[0]);
     await todoPage.expectItemCount(1);
   });
 
   test('should add multiple todo items', async ({ todoPage }) => {
+    if (shouldFlake(1)) throw new Error('Flaky — multi-add race');
     await todoPage.addTodos(...TEST_ITEMS.slice(0, 3));
     await todoPage.expectItemCount(3);
   });
 
   test('should mark a todo as completed', async ({ todoPage }) => {
+    if (shouldFlake(2)) throw new Error('Flaky — toggle race');
     await todoPage.addTodo(TEST_ITEMS[0]);
     await todoPage.toggleTodo(TEST_ITEMS[0]);
     await todoPage.todoIsChecked(TEST_ITEMS[0]);
   });
 
   test('should delete a todo item', async ({ todoPage }) => {
+    if (shouldFlake(3)) throw new Error('Flaky — delete race');
     const items = pickRandom(TEST_ITEMS, 3);
     await todoPage.addTodos(...items);
     await todoPage.deleteTodo(items[1]);
@@ -51,13 +57,14 @@ test.describe('TodoMVC — Core functionality', () => {
   });
 
   test('should edit a todo item', async ({ todoPage, page }) => {
-    if (shouldFlake(0)) throw new Error('Flaky — race condition on edit input');
+    if (shouldFlake(4)) throw new Error('Flaky — race condition on edit input');
     await todoPage.addTodo('Original task');
     await todoPage.editTodo('Original task', 'Updated task');
     await todoPage.expectVisibleTodo('Updated task');
   });
 
   test('should clear completed todos', async ({ todoPage }) => {
+    if (shouldFlake(5)) throw new Error('Flaky — clear completed race');
     await todoPage.addTodo('Task A');
     await todoPage.addTodo('Task B');
     await todoPage.toggleTodo('Task A');
@@ -92,7 +99,7 @@ test.describe('TodoMVC — Core functionality', () => {
   });
 
   test('should persist todos after page reload', async ({ todoPage, page }) => {
-    if (shouldFlake(1)) throw new Error('Flaky — localStorage persistence race');
+    if (shouldFlake(9)) throw new Error('Flaky — localStorage persistence race');
     await todoPage.addTodo('Persistent task');
     await page.reload();
     await todoPage.waitForPageLoad();

@@ -31,10 +31,11 @@ export default function App() {
     localStorage.setItem(CFG_KEY, JSON.stringify(cfg))
   }, [cfg])
 
-  // apiBase may be blank (= use the Vite proxy), so don't require it.
+  // apiBase may be blank (= use the Vite proxy), and apiKey is optional
+  // (LangFlow without auth works fine), so neither is required here.
   const ready = useMemo(
-    () => fileA && fileB && prompt.trim() && cfg.apiKey && !loading,
-    [fileA, fileB, prompt, cfg, loading],
+    () => fileA && fileB && prompt.trim() && !loading,
+    [fileA, fileB, prompt, loading],
   )
   const targetLabel = cfg.apiBase || 'localhost:7861 (proxy)'
 

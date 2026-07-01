@@ -1,73 +1,165 @@
 import type { FullConfig, FullResult, Suite, TestCase, TestResult } from '@playwright/test/reporter';
 import { writeFileSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 
-interface FlakySpec {
-  title: string;
-  ok: boolean;
-  tests: { results: { status: string }[] }[];
+interface SpecResult {
+  status: string;
+  duration: number;
+  retry: number;
 }
 
-interface FlakySuite {
+interface TestEntry {
+  status: string;
+  results: SpecResult[];
+}
+
+interface SpecEntry {
   title: string;
-  specs: FlakySpec[];
+  ok: boolean;
+  tests: TestEntry[];
+}
+
+interface SuiteEntry {
+  title: string;
+  specs: SpecEntry[];
 }
 
 interface FlakyReport {
-  suites: FlakySuite[];
+  config: { version: string };
+  suites: SuiteEntry[];
+  errors: { spec: string; test: string; message: string }[];
+  stats: {
+    startTime: string;
+    duration: number;
+    expected: number;
+    skipped: number;
+    unexpected: number;
+    flaky: number;
+  };
 }
 
-type TestTreeNode = {
-  suite: Suite;
-  tests: TestCase[];
-};
+function outcomeStatus(tc: TestCase): string {
+  if (tc.expectedStatus === 'skipped') return 'skipped';
+  const latest = tc.results?.[tc.results.length - 1];
+  if (!latest) return 'skipped';
+  // Matches expected? e.g. expectedStatus='passed' and result='passed'
+  if (latest.status === tc.expectedStatus) return 'expected';
+  return 'unexpected';
+}
+
+function isFlaky(tc: TestCase): boolean {
+  if (!tc.results || tc.results.length < 2) return false;
+  const statuses = new Set(tc.results.map((r) => r.status));
+  const hasPass = statuses.has('passed');
+  const hasFail = statuses.has('failed') || statuses.has('timedOut');
+  return hasPass && hasFail;
+}
 
 export default class FlakyAnalyzerReporter {
+  private config: FullConfig | null = null;
   private rootSuite: Suite | null = null;
+  private runResult: FullResult | null = null;
 
-  onBegin(_config: FullConfig, suite: Suite) {
+  onBegin(config: FullConfig, suite: Suite) {
+    this.config = config;
     this.rootSuite = suite;
   }
 
-  onEnd(_result: FullResult) {
-    if (!this.rootSuite) return;
+  onEnd(result: FullResult) {
+    this.runResult = result;
+    if (!this.rootSuite || !this.config) return;
 
     const outputPath = process.env.RESULT_OUTPUT || './results/results.json';
-    const report = this.buildReport(this.rootSuite);
+    const report = this.buildReport();
 
     mkdirSync(join(outputPath, '..'), { recursive: true });
     writeFileSync(outputPath, JSON.stringify(report, null, 2));
-    console.log(`\n  ✅ Flaky report saved → ${outputPath}`);
+    console.log(`\n  ✅ Flaky report saved → ${resolve(outputPath)}`);
   }
 
-  private buildReport(suite: Suite): FlakyReport {
-    const suites: FlakySuite[] = [];
+  private buildReport(): FlakyReport {
+    const allTests = this.collectTests(this.rootSuite!);
+    const suites: SuiteEntry[] = [];
+    const allErrors: { spec: string; test: string; message: string }[] = [];
 
-    for (const child of suite.suites ?? []) {
-      const s = this.flattenSuite(child);
-      if (s) suites.push(s);
+    let totalExpected = 0;
+    let totalSkipped = 0;
+    let totalUnexpected = 0;
+    let totalFlaky = 0;
+
+    // Group tests by their parent suite title
+    const suiteMap = new Map<string, TestCase[]>();
+    for (const tc of allTests) {
+      const suiteTitle = tc.parent?.title || 'root';
+      if (!suiteMap.has(suiteTitle)) suiteMap.set(suiteTitle, []);
+      suiteMap.get(suiteTitle)!.push(tc);
     }
 
-    return { suites };
-  }
+    for (const [suiteTitle, testCases] of suiteMap) {
+      const specs: SpecEntry[] = testCases.map((tc) => {
+        const results: SpecResult[] = (tc.results ?? []).map((r) => ({
+          status: r.status,
+          duration: r.duration,
+          retry: r.retry,
+        }));
 
-  private flattenSuite(suite: Suite): FlakySuite | null {
-    // Collect all test cases in this suite tree
-    const tests = this.collectTests(suite);
-    if (tests.length === 0) return null;
+        // Collect errors for this test
+        for (const r of tc.results ?? []) {
+          if (r.error?.message) {
+            allErrors.push({
+              spec: suiteTitle,
+              test: tc.title,
+              message: r.error.message,
+            });
+          }
+        }
 
-    const specs: FlakySpec[] = tests.map((t) => {
-      const results = t.results?.map((r) => ({ status: r.status })) ?? [];
-      // A spec is "ok" if the latest result passed
-      const ok = results.length > 0 ? results[results.length - 1].status === 'passed' : false;
-      return {
-        title: t.title,
-        ok,
-        tests: [{ results }],
-      };
-    });
+        const latest = results[results.length - 1];
+        const ok = latest ? latest.status === 'passed' : false;
 
-    return { title: suite.title || 'root', specs };
+        return {
+          title: tc.title,
+          ok,
+          tests: [
+            {
+              status: outcomeStatus(tc),
+              results,
+            },
+          ],
+        };
+      });
+
+      suites.push({ title: suiteTitle, specs });
+    }
+
+    // Count stats
+    for (const tc of allTests) {
+      if (tc.expectedStatus === 'skipped') {
+        totalSkipped++;
+      } else if (isFlaky(tc)) {
+        totalFlaky++;
+      } else if (outcomeStatus(tc) === 'unexpected') {
+        totalUnexpected++;
+      } else {
+        totalExpected++;
+      }
+    }
+
+    const runResult = this.runResult!;
+
+    return {
+      config: { version: this.config!.version },
+      suites,
+      errors: allErrors,
+      stats: {
+        startTime: runResult.startTime.toISOString(),
+        duration: runResult.duration,
+        expected: totalExpected,
+        skipped: totalSkipped,
+        unexpected: totalUnexpected,
+        flaky: totalFlaky,
+      },
+    };
   }
 
   private collectTests(suite: Suite): TestCase[] {

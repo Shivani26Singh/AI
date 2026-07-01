@@ -27,10 +27,10 @@ const ROOT = resolve(import.meta.dirname, '..');
 const LANGFLOW_URL  = (process.env.LANGFLOW_URL  || 'http://localhost:7861').replace(/\/+$/, '');
 const LANGFLOW_KEY  = process.env.LANGFLOW_KEY   || process.env.LANGFLOW_API_KEY || '';
 const GROQ_KEY      = process.env.GROQ_KEY        || '';
-const FLOW_ID       = 'e6ac9777-4c92-4d49-927f-853e8899ffb8';
-const GROQ_MODEL_ID = 'GroqModel-abpDp';
-const FILE_ID_A     = 'File-HtpAM';
-const FILE_ID_B     = 'File-Nv50X';
+const FLOW_ID       = process.env.FLOW_ID  || 'b85a9ffb-cfc5-46d1-8516-4b351d6d187e';
+const GROQ_MODEL_ID = process.env.GROQ_MODEL_ID || 'GroqModel-abpDp';
+const FILE_ID_A     = process.env.FILE_ID_A || 'File-HtpAM';
+const FILE_ID_B     = process.env.FILE_ID_B || 'File-Nv50X';
 const SESSION_ID    = `cli-${Date.now()}`;
 
 // ─── Step 1 — Run Playwright twice ───────────────────────────────────────

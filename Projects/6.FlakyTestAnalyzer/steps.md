@@ -5,23 +5,45 @@
 | Tool | Check |
 |------|-------|
 | Node.js | `node -v` → v18+ |
-| Playwright browsers | Already installed (chromium) |
+| Python | `py --version` → 3.10+ |
+| Playwright browsers | `npx playwright install chromium` (one-time) |
 | LangFlow | See **Step 1** |
 
 ---
 
-## Step 1 — Start LangFlow
+## Step 1 — Install & Start LangFlow
+
+### First time (on any laptop)
 
 ```bash
-cd Playwright
-scripts\start-lf.bat
+cd Projects\6.FlakyTestAnalyzer
+python -m venv .venv
+.\venv\Scripts\pip install langflow
+```
+
+> **Note for Windows:** If `pip install langflow` fails with a C++ build error (fastparquet),
+> install Visual C++ Build Tools from https://visualstudio.microsoft.com/visual-cpp-build-tools/
+> — select "Desktop development with C++" and install. Then retry the pip command.
+
+### Start LangFlow (every time)
+
+```bash
+cd Projects\6.FlakyTestAnalyzer
+.\venv\Scripts\langflow.exe run --host 127.0.0.1 --port 7861
+```
+
+### Skip auth (optional, local dev only)
+
+Set this before starting:
+```bash
+set LANGFLOW_SKIP_AUTH_AUTO_LOGIN=true
 ```
 
 > **Verify:** Open http://localhost:7861 — you should see the LangFlow UI.
 
 ---
 
-## Step 2 — Import the agent flow
+## Step 2 — Import the agent flow (one-time per LangFlow instance)
 
 In the LangFlow UI (http://localhost:7861):
 
@@ -29,6 +51,14 @@ In the LangFlow UI (http://localhost:7861):
 2. **Import** → select `Input/Flaky_Test_AIAgent.json`
 3. Once imported, click **Publish** (top-right)
 4. Copy the **Flow ID** from the URL — it looks like `e6ac9777-4c92-4d49-927f-853e8899ffb8`
+5. Note the **File component IDs** — open the flow and check the two **File** nodes for their IDs (visible in the right panel). They'll be something like `File-HtpAM` and `File-Nv50X`
+
+> **⚠️ Each time you re-import the flow, these IDs change.** Set them via env vars if different from the defaults:
+> ```bash
+> set FLOW_ID=your-new-flow-id
+> set FILE_ID_A=File-XXXXX
+> set FILE_ID_B=File-YYYYY
+> ```
 
 ---
 
@@ -142,8 +172,12 @@ The agent also provides **flake hypotheses** (e.g. "timing/race issue with local
 
 | Problem | Fix |
 |---------|-----|
-| `ECONNREFUSED` on upload | LangFlow is not running → run `scripts\start-lf.bat` |
+| `langflow` not found | Run `.\venv\Scripts\pip install langflow` first (one-time setup) |
+| C++ build error on `pip install langflow` | Install Visual C++ Build Tools (see Step 1 note) |
+| `ECONNREFUSED` on upload | LangFlow is not running → `scripts\start-lf.bat` or manual start |
 | `404` on upload | Wrong Flow ID → check the ID in the LangFlow URL after publishing |
+| Wrong File component IDs | Set `FILE_ID_A`/`FILE_ID_B` env vars to match your imported flow |
 | Upload fails (CORS) | Use the Vite proxy (don't open the UI directly from the filesystem) |
+| `EADDRINUSE :::7861` | LangFlow already running, or another process on port 7861 |
 | No `x-api-key` | Leave it blank if LangFlow is running locally without auth |
-| File component IDs wrong | Open the flow in LangFlow, check the **File** component IDs |
+| Port 5173 already used | Vite auto-picks next available port; check terminal output |

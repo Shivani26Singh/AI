@@ -1,16 +1,22 @@
 {
+  "config": {
+    "version": "1.61.0"
+  },
   "suites": [
     {
-      "title": "chromium",
+      "title": "TodoMVC — Core functionality",
       "specs": [
         {
           "title": "should add a single todo item",
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 722,
+                  "retry": 0
                 }
               ]
             }
@@ -21,9 +27,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 569,
+                  "retry": 0
                 }
               ]
             }
@@ -34,9 +43,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 663,
+                  "retry": 0
                 }
               ]
             }
@@ -47,9 +59,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 879,
+                  "retry": 0
                 }
               ]
             }
@@ -57,12 +72,15 @@
         },
         {
           "title": "should edit a todo item",
-          "ok": true,
+          "ok": false,
           "tests": [
             {
+              "status": "unexpected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "failed",
+                  "duration": 687,
+                  "retry": 0
                 }
               ]
             }
@@ -70,12 +88,15 @@
         },
         {
           "title": "should clear completed todos",
-          "ok": true,
+          "ok": false,
           "tests": [
             {
+              "status": "unexpected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "failed",
+                  "duration": 656,
+                  "retry": 0
                 }
               ]
             }
@@ -86,9 +107,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 935,
+                  "retry": 0
                 }
               ]
             }
@@ -99,9 +123,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 835,
+                  "retry": 0
                 }
               ]
             }
@@ -112,9 +139,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 829,
+                  "retry": 0
                 }
               ]
             }
@@ -125,22 +155,33 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 1347,
+                  "retry": 0
                 }
               ]
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "title": "TodoMVC — Edge cases",
+      "specs": [
         {
           "title": "should handle empty todo submission",
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 635,
+                  "retry": 0
                 }
               ]
             }
@@ -151,9 +192,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 623,
+                  "retry": 0
                 }
               ]
             }
@@ -164,9 +208,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 970,
+                  "retry": 0
                 }
               ]
             }
@@ -177,9 +224,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 705,
+                  "retry": 0
                 }
               ]
             }
@@ -190,9 +240,12 @@
           "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "passed"
+                  "status": "passed",
+                  "duration": 924,
+                  "retry": 0
                 }
               ]
             }
@@ -200,12 +253,15 @@
         },
         {
           "title": "should not show clear-completed when no todos completed",
-          "ok": false,
+          "ok": true,
           "tests": [
             {
+              "status": "expected",
               "results": [
                 {
-                  "status": "failed"
+                  "status": "passed",
+                  "duration": 683,
+                  "retry": 0
                 }
               ]
             }
@@ -213,5 +269,25 @@
         }
       ]
     }
-  ]
+  ],
+  "errors": [
+    {
+      "spec": "TodoMVC — Core functionality",
+      "test": "should edit a todo item",
+      "message": "Error: Flaky — race condition on edit input"
+    },
+    {
+      "spec": "TodoMVC — Core functionality",
+      "test": "should clear completed todos",
+      "message": "Error: Flaky — clear completed race"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-06-28T14:04:46.944Z",
+    "duration": 16186.101,
+    "expected": 14,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
 }

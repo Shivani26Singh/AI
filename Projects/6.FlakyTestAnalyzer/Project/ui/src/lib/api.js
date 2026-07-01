@@ -4,18 +4,13 @@
 //   1) upload each JSON file -> POST /api/v1/files/upload/{flowId}  -> returns a server file_path
 //   2) run the flow          -> POST /api/v1/run/{flowId}?stream=false  with those paths as tweaks
 //
-// The flow has two File components. These IDs were read from the live flow
-// definition (GET /api/v1/flows/{flowId}); they are overridable from Settings.
+// Auth: When apiKey is empty, auto-login via GET /api/v1/auto_login and use the
+// Bearer token. When apiKey is set, use x-api-key header (may not work for uploads
+// in all LangFlow setups).
 export const DEFAULTS = {
-  // Blank => same-origin requests that go through the Vite dev proxy
-  // (see vite.config.js). This avoids LangFlow's broken upload-preflight CORS.
-  // Set to a full URL (e.g. http://localhost:7861) to call LangFlow directly.
   apiBase: '',
-  // Left blank on purpose — never commit a real key to a public repo.
-  // Paste your LangFlow x-api-key in the Connection panel (saved to localStorage),
-  // or set VITE_API_KEY in a local .env (gitignored).
   apiKey: import.meta.env.VITE_API_KEY || '',
-  flowId: 'e6ac9777-4c92-4d49-927f-853e8899ffb8',
+  flowId: 'b85a9ffb-cfc5-46d1-8516-4b351d6d187e',
   fileIdA: 'File-HtpAM',
   fileIdB: 'File-Nv50X',
   groqModelId: 'GroqModel-abpDp',
@@ -43,13 +38,31 @@ async function readError(res) {
   return `${res.status} ${res.statusText}${detail ? ` — ${detail}` : ''}`
 }
 
+let cachedToken = null
+
+async function getAuthHeaders(cfg) {
+  if (cfg.apiKey) return { 'x-api-key': cfg.apiKey }
+  if (cachedToken) return { Authorization: `Bearer ${cachedToken}` }
+  try {
+    const res = await fetch(`${trimBase(cfg.apiBase)}/api/v1/auto_login`)
+    if (res.ok) {
+      const data = await res.json()
+      cachedToken = data.access_token
+      return { Authorization: `Bearer ${data.access_token}` }
+    }
+  } catch {}
+  return {}
+}
+
 // Uploads one file and returns the server-relative path to feed into tweaks.
-export async function uploadFile({ apiBase, apiKey, flowId }, file) {
+export async function uploadFile(cfg, file) {
+  const { flowId } = cfg
   const form = new FormData()
   form.append('file', file)
-  const res = await fetch(`${trimBase(apiBase)}/api/v1/files/upload/${flowId}`, {
+  const headers = await getAuthHeaders(cfg)
+  const res = await fetch(`${trimBase(cfg.apiBase)}/api/v1/files/upload/${flowId}`, {
     method: 'POST',
-    headers: { 'x-api-key': apiKey },
+    headers,
     body: form,
   })
   if (!res.ok) throw new Error(`Upload failed for "${file.name}": ${await readError(res)}`)
@@ -60,15 +73,16 @@ export async function uploadFile({ apiBase, apiKey, flowId }, file) {
 
 // Runs the flow with the two uploaded paths and a prompt. Returns the raw response.
 export async function runFlow(cfg, { pathA, pathB, prompt, sessionId }) {
-  const { apiBase, apiKey, flowId, fileIdA, fileIdB, groqModelId, groqKey } = cfg
+  const { flowId, fileIdA, fileIdB, groqModelId, groqKey } = cfg
   const tweaks = {
     [fileIdA]: { path: [pathA] },
     [fileIdB]: { path: [pathB] },
   }
   if (groqKey) tweaks[groqModelId] = { api_key: groqKey }
-  const res = await fetch(`${trimBase(apiBase)}/api/v1/run/${flowId}?stream=false`, {
+  const headers = { ...(await getAuthHeaders(cfg)), 'Content-Type': 'application/json' }
+  const res = await fetch(`${trimBase(cfg.apiBase)}/api/v1/run/${flowId}?stream=false`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+    headers,
     body: JSON.stringify({
       output_type: 'chat',
       input_type: 'text',

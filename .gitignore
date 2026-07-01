@@ -2,3 +2,20 @@ node_modules/
 target/  
 *.log 
 *.env*
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Playwright / Test artifacts
+test-results/
+playwright/.cache/
+*.last-run.json
+**/results/*.json
+
+# Generated data
+tmp_*.json
+tmp_*.csv
